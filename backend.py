@@ -6,6 +6,7 @@ USE_CUPY = False
 try:
     import cupy
     if cupy.cuda.runtime.getDeviceCount() > 0:
+        _backend = "cupy"
         USE_CUPY = True
 except (ImportError, RuntimeError):
     USE_CUPY = False
