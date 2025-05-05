@@ -1,7 +1,5 @@
-from . import tensor
-from . import device
+from .tensor import tensor
 
 __all__ = [
     "tensor",
-    "device",
 ]
