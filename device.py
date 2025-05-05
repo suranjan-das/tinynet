@@ -1,4 +1,4 @@
-from .backend import get_backend, get_xp
+from .backend import get_backend, get_xp, set_backend
 
 class Device:
     def __init__(self, device_str: str = "cpu"):
@@ -9,6 +9,8 @@ class Device:
         if self.device_str == "cpu":
             self.is_cuda = False
         elif self.device_str.startswith("cuda"):
+            set_backend("cupy")
+            self.xp = get_xp()
             if self.backend != "cupy":
                 raise RuntimeError("CuPy backend required for CUDA device, but current backend is NumPy.")
 
