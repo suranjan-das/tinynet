@@ -1,4 +1,4 @@
-from .tensor import tensor
+from . import tensor
 from . import device
 
 __all__ = [

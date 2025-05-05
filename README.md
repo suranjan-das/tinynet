@@ -10,4 +10,4 @@ A minimal deep learning framework with NumPy-style tensors and autograd, built f
 ## Installation
 Clone the repo:
 ```bash
-git clone https://github.com/yourusername/tinynet.git
+git clone https://github.com/suranjan-das/tinynet.git
