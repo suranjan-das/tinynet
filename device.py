@@ -1,19 +1,14 @@
-from .backend import get_backend, get_xp, set_backend
+from .backend import get_xp
 
 class Device:
     def __init__(self, device_str: str = "cpu"):
         self.device_str = device_str.lower()
-        self.backend = get_backend()
-        self.xp = get_xp()
+        # get the backend (NumPy or CuPy) based on the device string
+        self.xp = get_xp(self.device_str)
 
         if self.device_str == "cpu":
             self.is_cuda = False
         elif self.device_str.startswith("cuda"):
-            set_backend("cupy")
-            self.xp = get_xp()
-            self.backend = get_backend()
-            if self.backend != "cupy":
-                raise RuntimeError("CuPy backend required for CUDA device, but current backend is NumPy.")
             self.is_cuda = True
             device_id = int(self.device_str.split(":")[-1]) if ":" in self.device_str else 0
             self.device_id = device_id
@@ -31,7 +26,7 @@ class Device:
         return self.xp.ones_like(data)
 
     def asnumpy(self, data):
-        # Only CuPy arrays need conversion
-        if self.backend == "cupy":
+        if self.device_str == "cpu":
+            return data
+        else:
             return self.xp.asnumpy(data)
-        return data

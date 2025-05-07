@@ -1,33 +1,25 @@
 # backend.py
+# This module provides a way to handle both NumPy and CuPy arrays, depending on the availability of CUDA.
+# It defines a function to get the appropriate array library based on the device specified.
 
-_backend = "numpy"  # Default
-USE_CUPY = False
+# It also includes a check for the availability of CuPy and CUDA devices.
+_CUPY_AVAILABLE = False
 
+import numpy
 try:
     import cupy
     if cupy.cuda.runtime.getDeviceCount() > 0:
-        USE_CUPY = True
+        _CUPY_AVAILABLE = True
 except (ImportError, RuntimeError):
-    USE_CUPY = False
+    _CUPY_AVAILABLE = False
 
-import numpy
 
-def get_backend():
-    return _backend
-
-def get_xp():
-    if _backend == "cupy":
-        return cupy
-    return numpy
-
-def set_backend(name):
-    global _backend
-    name = name.lower()
-    if name == "cupy":
-        if not USE_CUPY:
+def get_xp(device="cpu"):
+    if device.startswith("cuda") :
+        if not _CUPY_AVAILABLE:
             raise RuntimeError("CuPy not available or no CUDA device found.")
-        _backend = "cupy"
-    elif name == "numpy":
-        _backend = "numpy"
+        return cupy
+    elif device == "cpu":
+        return numpy
     else:
-        raise ValueError("Backend must be 'numpy' or 'cupy'")
+        raise ValueError("Device must be 'cpu' or 'cuda[:id]'")

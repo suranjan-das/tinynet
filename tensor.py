@@ -1,7 +1,7 @@
 # tensor class with device support
 from .device import Device
 from .core.tensor_fn import *
-
+        
 class tensor:
     def __init__(self, data, requires_grad=False, parents=None, op=None, device='cpu', dtype=None):
         self.device = Device(device) if not isinstance(device, Device) else device
@@ -22,29 +22,13 @@ class tensor:
     def to(self, device):
         if self.device.device_str == device:
             return self
-
-        # Backend compatibility check
-        from .backend import get_backend
-        backend = get_backend()
-        if device.startswith("cuda") and backend != "cupy":
-            raise RuntimeError("CuPy backend is not active. Cannot move tensor to CUDA.")
-        if device == "cpu" and backend != "numpy":
-            raise RuntimeError("NumPy backend is not active. Cannot move tensor to CPU.")
-
         new_device = Device(device)
         new_tensor = tensor(
-            self.device.asnumpy(self.data),
-            requires_grad=self.requires_grad,
+            self.device.xp(self.data.tolist()),
+            requires_grad=self.requires_grad if self.requires_grad else False,
             device=new_device,
             dtype=self.dtype
         )
-        if self.grad is not None:
-            new_tensor.grad = tensor(
-                self.device.asnumpy(self.grad.data),
-                requires_grad=False,
-                device=new_device,
-                dtype=self.dtype
-            )
         return new_tensor
 
     def backward(self, grad=None, visited=None):
