@@ -77,7 +77,7 @@ class tensor:
         return data, grad
 
     def __repr__(self):
-        return f"tensor({self.data}, device={self.device.device_str}, requires_grad={self.requires_grad})"
+        return self.data.__repr__().replace('array', 'tensor')
 
     @property
     def shape(self):
