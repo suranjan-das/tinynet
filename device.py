@@ -11,9 +11,9 @@ class Device:
         elif self.device_str.startswith("cuda"):
             set_backend("cupy")
             self.xp = get_xp()
+            self.backend = get_backend()
             if self.backend != "cupy":
                 raise RuntimeError("CuPy backend required for CUDA device, but current backend is NumPy.")
-
             self.is_cuda = True
             device_id = int(self.device_str.split(":")[-1]) if ":" in self.device_str else 0
             self.device_id = device_id
