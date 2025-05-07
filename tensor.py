@@ -24,7 +24,7 @@ class tensor:
             return self
         new_device = Device(device)
         new_tensor = tensor(
-            self.device.xp(self.data.tolist()),
+            new_device.array(self.data.tolist(), dtype=self.dtype),
             requires_grad=self.requires_grad if self.requires_grad else False,
             device=new_device,
             dtype=self.dtype
