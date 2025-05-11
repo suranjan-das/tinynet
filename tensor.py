@@ -86,9 +86,7 @@ class tensor:
     @property
     def T(self):
         data, requires_grad, op = transpose(self)
-        self.data = data
-        return self
-        # return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=self.dtype)
+        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=self.dtype)
     
     def reshape(self, *shape):
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
@@ -96,9 +94,7 @@ class tensor:
         else:
             shape = tuple(shape)
         data, requires_grad, op = reshape(self, shape)
-        self.data = data
-        return self
-        # return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=self.dtype)
+        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=self.dtype)
 
     def _apply_op(self, other, op_fn, scalar=False, is_scalar_first=False):
         if scalar:
