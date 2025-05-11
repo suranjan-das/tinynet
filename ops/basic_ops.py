@@ -53,6 +53,22 @@ class Divide(Operation):
         grad_b = unbroadcast(-grad.data * a.data / (b.data ** 2), self.b_shape)
         return grad_a, grad_b
     
+class Pow(Operation):
+    def forward(self, a, b):
+        self.a_data = a.data
+        self.b_data = b.data
+        self.out = self.a_data ** self.b_data
+        self.a_shape = self.a_data.shape
+        self.b_shape = self.b_data.shape
+        return self.out
+
+    def backward(self, grad, a, b):
+        xp = a.device.xp if hasattr(a.device, 'xp') else b.device.xp
+        grad_data = grad.data
+        grad_a = unbroadcast(grad_data * self.b_data * (self.a_data ** (self.b_data - 1)), self.a_shape)
+        grad_b = unbroadcast(grad_data * self.out * xp.log(self.a_data), self.b_shape)
+        return grad_a, grad_b
+    
 class MatMul(Operation):
     def forward(self, a, b):
         self.a_shape = a.data.shape
@@ -197,3 +213,19 @@ class ScalarDivide(Operation):
         if self.is_scalar_first:
             return (-grad.data * self.scalar / (x.data * x.data),)  # dL/dX = -dL/dC * scalar / X^2
         return (grad.data / self.scalar,)  # dL/dX = dL/dC / scalar
+    
+class ScalarPow(Operation):
+    def __init__(self, scalar, is_scalar_first=False):
+        self.scalar = scalar
+        self.is_scalar_first = is_scalar_first
+
+    def forward(self, x):
+        return self.scalar ** x.data if self.is_scalar_first else x.data ** self.scalar
+
+    def backward(self, grad, x):
+        xp = x.device.xp
+        if self.is_scalar_first:
+            grad_input = grad.data * xp.log(self.scalar) * (self.scalar ** x.data)
+        else:
+            grad_input = grad.data * self.scalar * (x.data ** (self.scalar - 1))
+        return (grad_input,)

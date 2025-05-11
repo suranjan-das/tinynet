@@ -128,6 +128,12 @@ class tensor:
 
     def __rtruediv__(self, other):
         return self._apply_op(other, scalar_divide if isinstance(other, (int, float)) else divide, scalar=isinstance(other, (int, float)), is_scalar_first=True)
+    
+    def __pow__(self, other):
+        return self._apply_op(other, scalar_pow if isinstance(other, (int, float)) else pow, scalar=isinstance(other, (int, float)))
+    
+    def __rpow__(self, other):
+        return self._apply_op(other, scalar_pow if isinstance(other, (int, float)) else pow, scalar=isinstance(other, (int, float)), is_scalar_first=True)
 
     def __matmul__(self, other):
         data, requires_grad, op = matmul(self, other)

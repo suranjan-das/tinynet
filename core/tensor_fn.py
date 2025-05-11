@@ -15,6 +15,9 @@ def multiply(a, b):
 def divide(a, b):
     return binary_op(a, b, Divide)
 
+def pow(a, b):
+    return binary_op(a, b, Pow)
+
 def matmul(a, b):
     return binary_op(a, b, MatMul)
 
@@ -31,6 +34,9 @@ def scalar_multiply(scalar, x, is_scalar_first=False):
 
 def scalar_divide(scalar, x, is_scalar_first=False):
     return scalar_op(scalar, x, ScalarDivide, is_scalar_first)
+
+def scalar_pow(scalar, x, is_scalar_first=False):
+    return scalar_op(scalar, x, ScalarPow, is_scalar_first)
 
 
 # Unary operations
