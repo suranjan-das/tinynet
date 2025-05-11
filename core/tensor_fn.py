@@ -37,6 +37,9 @@ def scalar_divide(scalar, x, is_scalar_first=False):
 def transpose(x):
     return unary_op(x, Transpose)
 
+def reshape(x, shape):
+    return unary_op(x, Reshape, shape=shape)
+
 def sum(x, axis=None, keepdims=False):
     return unary_op(x, Sum, axis=axis, keepdims=keepdims)
 

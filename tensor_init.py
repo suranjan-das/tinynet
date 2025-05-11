@@ -28,15 +28,17 @@ def full(*shape, fill_value, requires_grad=False, dtype=None, device='cpu'):
     data = dev.xp.full(shape, fill_value, dtype=dtype)
     return tensor(data, requires_grad=requires_grad, device=dev, dtype=dtype)
 
-def rand(*shape, requires_grad=False, dtype=None, device='cpu'):
+def rand(*shape, seed=None, requires_grad=False, dtype=None, device='cpu'):
     shape = _process_shape(shape)
     dev = Device(device)
+    dev.xp.random.seed(seed)  # Set the random seed for reproducibility
     data = dev.xp.random.rand(*shape).astype(dtype or dev.xp.float32)
     return tensor(data, requires_grad=requires_grad, device=dev, dtype=dtype)
 
-def randn(*shape, requires_grad=False, dtype=None, device='cpu'):
+def randn(*shape, seed=None, requires_grad=False, dtype=None, device='cpu'):
     shape = _process_shape(shape)
     dev = Device(device)
+    dev.xp.random.seed(seed)  # Set the random seed for reproducibility
     data = dev.xp.random.randn(*shape).astype(dtype or dev.xp.float32)
     return tensor(data, requires_grad=requires_grad, device=dev, dtype=dtype)
 

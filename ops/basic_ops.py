@@ -52,44 +52,6 @@ class Divide(Operation):
         grad_a = unbroadcast(grad.data / b.data, self.a_shape)
         grad_b = unbroadcast(-grad.data * a.data / (b.data ** 2), self.b_shape)
         return grad_a, grad_b
-
-# # Addition operation
-# class Add(Operation):
-#     def forward(self, a, b):
-#         return a.data + b.data
-
-#     def backward(self, grad, a, b):
-#         return grad.data, grad.data  # dL/dA = dL/dC, dL/dB = dL/dC
-
-
-# # Subtraction operation
-# class Subtract(Operation):
-#     def forward(self, a, b):
-#         return a.data - b.data
-
-#     def backward(self, grad, a, b):
-#         return grad.data, -grad.data  # dL/dA = dL/dC, dL/dB = -dL/dC
-
-
-# class Multiply(Operation):
-#     def forward(self, a, b):
-#         self.a_shape = a.data.shape
-#         self.b_shape = b.data.shape
-#         return a.data * b.data
-
-#     def backward(self, grad, a, b):
-#         grad_a = grad.data * b.data
-#         grad_b = grad.data * a.data
-#         return unbroadcast(grad_a, self.a_shape), unbroadcast(grad_b, self.b_shape)
-
-
-# # Element-wise division operation
-# class Divide(Operation):
-#     def forward(self, a, b):
-#         return a.data / b.data
-
-#     def backward(self, grad, a, b):
-#         return grad.data / b.data, -grad.data * a.data / (b.data * b.data)  # dL/dA = dL/dC / B, dL/dB = -dL/dC * A / B^2
     
 class MatMul(Operation):
     def forward(self, a, b):
@@ -130,6 +92,19 @@ class Transpose(Operation):
 
     def backward(self, grad, x):
         return (grad.data.T,)
+
+# Reshape operation    
+class Reshape(Operation):
+    def __init__(self, shape=None):
+        self.new_shape = shape
+        self.original_shape = None
+
+    def forward(self, x):
+        self.original_shape = x.data.shape
+        return x.data.reshape(self.new_shape)
+
+    def backward(self, grad, x):
+        return (grad.data.reshape(self.original_shape),)
     
 # Sum operation
 class Sum(Operation):
