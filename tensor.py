@@ -95,6 +95,27 @@ class tensor:
             shape = tuple(shape)
         data, requires_grad, op = reshape(self, shape)
         return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=self.dtype)
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+        if not isinstance(idx, tuple):
+            idx = (idx,)
+
+        def unwrap(x):
+            if isinstance(x, slice):
+                return slice(
+                    x.start.data if isinstance(x.start, tensor) else x.start,
+                    x.stop.data if isinstance(x.stop, tensor) else x.stop,
+                    x.step.data if isinstance(x.step, tensor) else x.step
+                )
+            return x.data if isinstance(x, tensor) else x
+
+        new_idx = tuple(unwrap(i) for i in idx)
+        sliced_data = self.data[new_idx]
+        return tensor(sliced_data, requires_grad=self.requires_grad, device=self.device)
+
 
     def _apply_op(self, other, op_fn, scalar=False, is_scalar_first=False):
         if scalar:
@@ -103,7 +124,7 @@ class tensor:
         else:
             data, requires_grad, op = op_fn(self, other)
             parents = [self, other]
-        return tensor(data, requires_grad, parents=parents, op=op, device=self.device, dtype=self.dtype)
+        return tensor(data, requires_grad, parents=parents, op=op, device=self.device, dtype=data.dtype)
 
     def __add__(self, other):
         return self._apply_op(other, scalar_add if isinstance(other, (int, float)) else add, scalar=isinstance(other, (int, float)))
@@ -137,12 +158,28 @@ class tensor:
 
     def __matmul__(self, other):
         data, requires_grad, op = matmul(self, other)
-        return tensor(data, requires_grad, parents=[self, other], op=op, device=self.device, dtype=self.dtype)
+        return tensor(data, requires_grad, parents=[self, other], op=op, device=self.device, dtype=data.dtype)
 
     def sum(self, axis=None, keepdims=False):
         data, requires_grad, op = sum(self, axis=axis, keepdims=keepdims)
-        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=self.dtype)
+        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=data.dtype)
 
     def mean(self, axis=None, keepdims=False):
         data, requires_grad, op = mean(self, axis=axis, keepdims=keepdims)
-        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=self.dtype)
+        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=data.dtype)
+    
+    def exp(self):
+        data, requires_grad, op = exp(self)
+        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=data.dtype)
+    
+    def log(self):
+        data, requires_grad, op = log(self)
+        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=data.dtype)
+    
+    def sqrt(self):
+        data, requires_grad, op = sqrt(self)
+        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=data.dtype)
+    
+    def log_softmax(self, axis=-1):
+        data, requires_grad, op = log_softmax(self, axis=axis)
+        return tensor(data, requires_grad, parents=[self], op=op, device=self.device, dtype=data.dtype)

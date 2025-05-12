@@ -8,4 +8,5 @@ __all__ = [
     "full",
     "rand",
     "randn",
+    "arange",
 ]

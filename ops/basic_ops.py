@@ -82,7 +82,7 @@ class MatMul(Operation):
         self.b_data = b_data
 
         result = a_data @ b_data
-        return result.squeeze()  # remove singleton dims if needed
+        return result
 
     def backward(self, grad, a, b):
         grad_data = grad.data

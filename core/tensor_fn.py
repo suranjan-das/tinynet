@@ -1,4 +1,5 @@
 from ..ops.basic_ops import *
+from ..ops.math_ops import *
 from ..core.base_fn import binary_op, unary_op, scalar_op
 
 
@@ -51,3 +52,15 @@ def sum(x, axis=None, keepdims=False):
 
 def mean(x, axis=None, keepdims=False):
     return unary_op(x, Mean, axis=axis, keepdims=keepdims)
+
+def exp(x):
+    return unary_op(x, Exp)
+
+def log(x):
+    return unary_op(x, Log)
+
+def sqrt(x):
+    return unary_op(x, Sqrt)
+
+def log_softmax(x, axis=-1):
+    return unary_op(x, LogSoftmax, axis=axis)
