@@ -47,6 +47,9 @@ def transpose(x):
 def reshape(x, shape):
     return unary_op(x, Reshape, shape=shape)
 
+def getitem(x, idx):
+    return unary_op(x, GetItem, idx=idx)
+
 def sum(x, axis=None, keepdims=False):
     return unary_op(x, Sum, axis=axis, keepdims=keepdims)
 

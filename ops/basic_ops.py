@@ -122,6 +122,18 @@ class Reshape(Operation):
     def backward(self, grad, x):
         return (grad.data.reshape(self.original_shape),)
     
+class GetItem(Operation):
+    def __init__(self, idx):
+        self.idx = idx
+
+    def forward(self, x):
+        return x.data[self.idx]
+
+    def backward(self, grad, x):
+        grad_data = x.device.xp.zeros_like(x.data)
+        grad_data[self.idx] = grad.data
+        return (grad_data,)
+    
 # Sum operation
 class Sum(Operation):
     def __init__(self, axis=None, keepdims=False):
