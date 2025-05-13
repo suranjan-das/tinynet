@@ -8,4 +8,4 @@ class SGD(Optimizer):
     def step(self):
         for param in self.parameters:
             if param.grad is not None:
-                param.data -= self.lr * param.grad
+                param.data -= self.lr * param.grad.data

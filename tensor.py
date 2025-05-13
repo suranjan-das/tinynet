@@ -70,6 +70,10 @@ class tensor:
                     dtype=parent.dtype
                 ), visited=visited)
 
+        # Clear graph info to free memory
+        self.op = None
+        self.parents = None
+
     def to_cpu(self):
         """Return data and grad as NumPy arrays for plotting."""
         data = self.device.asnumpy(self.data)
@@ -107,8 +111,24 @@ class tensor:
     def reshape(self, *shape):
         return self._apply_op(None, reshape, unary=True, shape=shape)
     
+    # helper function to process tensor type index
+    def _process_index(self, idx):
+        if isinstance(idx, tensor):
+            return idx.data
+        elif isinstance(idx, slice):
+            return slice(
+                self._process_index(idx.start),
+                self._process_index(idx.stop),
+                self._process_index(idx.step)
+            )
+        elif isinstance(idx, (list, tuple)):
+            return type(idx)(self._process_index(i) for i in idx)
+        else:
+            return idx
+
     def __getitem__(self, idx):
-        return self._apply_op(None, getitem, unary=True, idx=idx)
+        processed_idx = self._process_index(idx)
+        return self._apply_op(None, getitem, unary=True, idx=processed_idx)
 
     def __add__(self, other):
         return self._apply_op(other, scalar_add if isinstance(other, (int, float)) else add, scalar=isinstance(other, (int, float)))

@@ -17,7 +17,6 @@ class Device:
             raise ValueError("Device must be 'cpu' or 'cuda[:id]'")
 
     def array(self, data, dtype=None):
-        # TODO: take shape as tuple or list or other type
         return self.xp.array(data, dtype=dtype) if dtype else self.xp.array(data)
 
     def zeros_like(self, data):
