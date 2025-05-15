@@ -1,5 +1,4 @@
 # tensor class with device support
-# from .device import Device
 from .backend import get_xp
 from .core.tensor_fn import *
         
@@ -30,7 +29,7 @@ class tensor:
     
     def backward(self, grad=None, visited=None):
         if not self.requires_grad:
-            if not self.op:
+            if (not self.op) and (not self.is_leaf):
                 raise RuntimeError("Cannot call backward on a tensor that does not require gradient and has no operation")
             return
 
