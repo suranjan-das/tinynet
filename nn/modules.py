@@ -55,7 +55,7 @@ class Module:
 class Linear(Module):
     def __init__(self, in_features, out_features, *, bias=True, gain=1.0, device='cpu', dtype=None):
         super().__init__()
-        xp = get_xp(device=device)
+        xp = get_xp(device)
         fan_in, fan_out = in_features, out_features
         std = gain * xp.sqrt(2.0 / (fan_in + fan_out))
         self.weight = tensor(xp.random.normal(0.0, std, size=(fan_in, fan_out)), requires_grad=True, device=device, dtype=dtype)
