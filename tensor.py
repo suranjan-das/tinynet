@@ -1,19 +1,21 @@
 # tensor class with device support
-from .device import Device
+# from .device import Device
+from .backend import get_xp
 from .core.tensor_fn import *
         
 class tensor:
     def __init__(self, data, requires_grad=False, parents=None, op=None, device='cpu', dtype=None):
-        self.device = Device(device) if not isinstance(device, Device) else device
+        self.device = device
+        self.xp = get_xp(device)
         if isinstance(data, tensor):
             data = data.data
-        self.data = self.device.array(data) if dtype is None else self.device.array(data, dtype=dtype)
+        self.data = self.xp.array(data) if dtype is None else self.xp.array(data, dtype=dtype)
         self.dtype = self.data.dtype
         self.requires_grad = requires_grad
         self.grad = None
         if requires_grad:
             self.grad = tensor(
-                self.device.zeros_like(self.data),
+                self.xp.zeros_like(self.data),
                 requires_grad=False,
                 device=self.device,
                 dtype=self.dtype
@@ -22,13 +24,12 @@ class tensor:
         self.op = op
 
     def to(self, device):
-        if self.device.device_str == device:
+        if self.device == device:
             return self
-        new_device = Device(device)
         new_tensor = tensor(
-            new_device.array(self.data, dtype=self.dtype),
+            self.xp.array(self.data, dtype=self.dtype),
             requires_grad=self.requires_grad if self.requires_grad else False,
-            device=new_device,
+            device=device,
             dtype=self.dtype
         )
         return new_tensor
@@ -47,7 +48,7 @@ class tensor:
 
         if grad is None:
             grad = tensor(
-                self.device.ones_like(self.data),
+                self.xp.ones_like(self.data),
                 requires_grad=False,
                 device=self.device,
                 dtype=self.dtype
@@ -75,12 +76,6 @@ class tensor:
         # Clear graph info to free memory
         self.op = None
         self.parents = None
-
-    def to_cpu(self):
-        """Return data and grad as NumPy arrays for plotting."""
-        data = self.device.asnumpy(self.data)
-        grad = self.device.asnumpy(self.grad.data) if self.grad is not None else None
-        return data, grad
 
     def __repr__(self):
         return self.data.__repr__().replace('array', 'tensor')

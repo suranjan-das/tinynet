@@ -63,7 +63,7 @@ class Pow(Operation):
         return self.out
 
     def backward(self, grad, a, b):
-        xp = a.device.xp if hasattr(a.device, 'xp') else b.device.xp
+        xp = a.xp
         grad_data = grad.data
         grad_a = unbroadcast(grad_data * self.b_data * (self.a_data ** (self.b_data - 1)), self.a_shape)
         grad_b = unbroadcast(grad_data * self.out * xp.log(self.a_data), self.b_shape)
@@ -130,7 +130,7 @@ class GetItem(Operation):
         return x.data[self.idx]
 
     def backward(self, grad, x):
-        grad_data = x.device.xp.zeros_like(x.data)
+        grad_data = x.xp.zeros_like(x.data)
         grad_data[self.idx] = grad.data
         return (grad_data,)
     
@@ -235,7 +235,7 @@ class ScalarPow(Operation):
         return self.scalar ** x.data if self.is_scalar_first else x.data ** self.scalar
 
     def backward(self, grad, x):
-        xp = x.device.xp
+        xp = x.xp
         if self.is_scalar_first:
             grad_input = grad.data * xp.log(self.scalar) * (self.scalar ** x.data)
         else:
