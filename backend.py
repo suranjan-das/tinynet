@@ -10,6 +10,7 @@ try:
     import cupy
     if cupy.cuda.runtime.getDeviceCount() > 0:
         _CUPY_AVAILABLE = True
+        cupy.cuda.set_allocator(cupy.cuda.MemoryPool().malloc)
 except (ImportError, RuntimeError):
     _CUPY_AVAILABLE = False
 

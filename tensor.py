@@ -6,22 +6,16 @@ from .core.tensor_fn import *
 class tensor:
     def __init__(self, data, requires_grad=False, parents=None, op=None, device='cpu', dtype=None):
         self.device = device
-        self.xp = get_xp(device)
+        self.xp = get_xp(device) # get the appropriate array library
         if isinstance(data, tensor):
             data = data.data
         self.data = self.xp.array(data) if dtype is None else self.xp.array(data, dtype=dtype)
         self.dtype = self.data.dtype
         self.requires_grad = requires_grad
         self.grad = None
-        if requires_grad:
-            self.grad = tensor(
-                self.xp.zeros_like(self.data),
-                requires_grad=False,
-                device=self.device,
-                dtype=self.dtype
-            )
         self.parents = parents or []
         self.op = op
+        self.is_leaf = (not self.parents and self.op is None)
 
     def to(self, device):
         if self.device == device:
@@ -33,36 +27,43 @@ class tensor:
             dtype=self.dtype
         )
         return new_tensor
-
+    
     def backward(self, grad=None, visited=None):
         if not self.requires_grad:
             return
+
         if visited is None:
             visited = set()
         if id(self) in visited:
             return
         visited.add(id(self))
 
-        if self.data.size != 1 and grad is None:
-            raise RuntimeError("grad can be implicitly created only for scalar outputs")
-
+        # Implicit gradient only allowed for scalar outputs
         if grad is None:
+            if self.data.size != 1:
+                raise RuntimeError("grad can be implicitly created only for scalar outputs")
             grad = tensor(
                 self.xp.ones_like(self.data),
                 requires_grad=False,
                 device=self.device,
                 dtype=self.dtype
             )
+        elif not isinstance(grad, tensor):
+            grad = tensor(
+                grad,
+                requires_grad=False,
+                device=self.device,
+                dtype=self.dtype
+            )
 
-        grad = grad if isinstance(grad, tensor) else tensor(
-            grad,
-            requires_grad=False,
-            device=self.device,
-            dtype=self.dtype
-        )
+        # Accumulate gradient only for leaf tensors
+        if self.is_leaf:
+            if self.grad is None:
+                self.grad = grad
+            else:
+                self.grad = self.grad + grad
 
-        self.grad = self.grad + grad if self.grad is not None else grad
-
+        # Propagate gradients
         if self.op:
             parent_grads = self.op.backward(grad, *self.parents)
             for parent, parent_grad in zip(self.parents, parent_grads):
@@ -73,7 +74,7 @@ class tensor:
                     dtype=parent.dtype
                 ), visited=visited)
 
-        # Clear graph info to free memory
+        # Free graph memory
         self.op = None
         self.parents = None
 

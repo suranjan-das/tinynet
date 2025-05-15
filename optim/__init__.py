@@ -1,5 +1,5 @@
-from ..optim import sgd
+from ..optim.sgd import SGD
 
 __all__ = [
-    "sgd", 
+    "SGD",
 ]

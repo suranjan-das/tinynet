@@ -28,18 +28,16 @@ def full(*shape, fill_value, requires_grad=False, dtype=None, device='cpu'):
     data = xp.full(shape, fill_value, dtype=dtype)
     return tensor(data, requires_grad=requires_grad, device=device, dtype=dtype)
 
-def rand(*shape, seed=None, requires_grad=False, dtype=None, device='cpu'):
+def rand(*shape, requires_grad=False, dtype=None, device='cpu'):
     shape = _process_shape(shape)
     xp = get_xp(device)
-    xp.random.seed(seed)  # Set the random seed for reproducibility
-    data = xp.random.rand(*shape).astype(dtype or xp.float32)
+    data = xp.random.rand(*shape) if dtype is None else xp.random.rand(*shape).astype(dtype)
     return tensor(data, requires_grad=requires_grad, device=device, dtype=dtype)
 
-def randn(*shape, seed=None, requires_grad=False, dtype=None, device='cpu'):
+def randn(*shape, requires_grad=False, dtype=None, device='cpu'):
     shape = _process_shape(shape)
     xp = get_xp(device)
-    xp.random.seed(seed)  # Set the random seed for reproducibility
-    data = xp.random.randn(*shape).astype(dtype or xp.float32)
+    data = xp.random.randn(*shape) if dtype is None else xp.random.randn(*shape).astype(dtype)
     return tensor(data, requires_grad=requires_grad, device=device, dtype=dtype)
 
 def arange(start, stop=None, step=1, *, dtype=None, requires_grad=False, device='cpu'):
