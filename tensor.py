@@ -5,6 +5,8 @@ from .core.tensor_fn import *
 class tensor:
     def __init__(self, data, requires_grad=False, parents=None, op=None, device='cpu', dtype=None):
         self.device = Device(device) if not isinstance(device, Device) else device
+        if isinstance(data, tensor):
+            data = data.data
         self.data = self.device.array(data) if dtype is None else self.device.array(data, dtype=dtype)
         self.dtype = self.data.dtype
         self.requires_grad = requires_grad
@@ -24,7 +26,7 @@ class tensor:
             return self
         new_device = Device(device)
         new_tensor = tensor(
-            new_device.array(self.data.tolist(), dtype=self.dtype),
+            new_device.array(self.data, dtype=self.dtype),
             requires_grad=self.requires_grad if self.requires_grad else False,
             device=new_device,
             dtype=self.dtype
