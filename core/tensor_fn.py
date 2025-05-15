@@ -41,6 +41,9 @@ def scalar_pow(scalar, x, is_scalar_first=False):
 
 
 # Unary operations
+def neg(x):
+    return unary_op(x, Neg)
+
 def transpose(x):
     return unary_op(x, Transpose)
 

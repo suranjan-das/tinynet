@@ -1,5 +1,12 @@
 from .base import Operation
-from ..core.utils import unbroadcast
+from ..core.utils import unbroadcast, expand_grad
+
+class Neg(Operation):
+    def forward(self, x):
+        return -x.data
+
+    def backward(self, grad, x):
+        return (-grad.data,)  # dL/dX = -dL/dC
 
 # Addition operation
 class Add(Operation):
@@ -147,16 +154,8 @@ class Sum(Operation):
         if self.axis is None and not self.keepdims:
             grad.data = grad.data.reshape(1).repeat(x.data.size, axis=0).reshape(x.data.shape)
         elif self.axis is not None and not self.keepdims:
-            grad.data = self.expand_grad(grad, x.shape, self.axis)
+            grad.data = expand_grad(grad, x.shape, self.axis)
         return (grad.data,)
-
-    def expand_grad(self, grad, target_shape, axis):
-        # Expand grad to match input shape
-        target = list(grad.data.shape)
-        for ax in (axis,) if isinstance(axis, int) else axis:
-            target.insert(ax, 1)
-        grad.data = grad.data.reshape(target)
-        return grad.data.repeat(target_shape[ax], axis=ax)
 
 # Mean operation
 class Mean(Operation):
@@ -173,7 +172,7 @@ class Mean(Operation):
         if self.axis is None and not self.keepdims:
             grad.data = grad.data.reshape(1).repeat(x.data.size, axis=0).reshape(x.data.shape)
         elif self.axis is not None and not self.keepdims:
-            grad.data = Sum.expand_grad(self, grad, x.data.shape, self.axis)
+            grad.data = expand_grad(grad, x.data.shape, self.axis)
         return (grad.data,)
     
 # Scalar addition operation (scalar + tensor or tensor + scalar)

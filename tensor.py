@@ -22,7 +22,7 @@ class tensor:
             return self
         new_tensor = tensor(
             self.xp.array(self.data, dtype=self.dtype),
-            requires_grad=self.requires_grad if self.requires_grad else False,
+            requires_grad=self.requires_grad,
             device=device,
             dtype=self.dtype
         )
@@ -30,6 +30,8 @@ class tensor:
     
     def backward(self, grad=None, visited=None):
         if not self.requires_grad:
+            if not self.op:
+                raise RuntimeError("Cannot call backward on a tensor that does not require gradient and has no operation")
             return
 
         if visited is None:
@@ -127,6 +129,9 @@ class tensor:
     def __getitem__(self, idx):
         processed_idx = self._process_index(idx)
         return self._apply_op(None, getitem, unary=True, idx=processed_idx)
+    
+    def __neg__(self):
+        return self._apply_op(None, neg, unary=True)
 
     def __add__(self, other):
         return self._apply_op(other, scalar_add if isinstance(other, (int, float)) else add, scalar=isinstance(other, (int, float)))
@@ -178,3 +183,9 @@ class tensor:
     
     def log_softmax(self, axis=-1):
         return self._apply_op(None, log_softmax, unary=True, axis=axis)
+    
+    def argmax(self, axis=None):
+        return tensor(self.xp.argmax(self.data, axis=axis), device=self.device, dtype=self.dtype)
+    
+    def argmin(self, axis=None):
+        return tensor(self.xp.argmin(self.data, axis=axis), device=self.device, dtype=self.dtype)

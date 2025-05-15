@@ -1,6 +1,6 @@
 from ..nn.losses import *
 
-all = [
+__all__ = [
     "CrossEntropyLoss",
     "MSELoss",
 ]
