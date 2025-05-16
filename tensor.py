@@ -29,8 +29,6 @@ class tensor:
     
     def backward(self, grad=None, visited=None):
         if not self.requires_grad:
-            if (not self.op) and (not self.is_leaf):
-                raise RuntimeError("Cannot call backward on a tensor that does not require gradient and has no operation")
             return
 
         if visited is None:
