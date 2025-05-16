@@ -4,6 +4,8 @@ from .core.tensor_fn import *
         
 class tensor:
     def __init__(self, data, requires_grad=False, parents=None, op=None, device='cpu', dtype=None):
+        if device not in ['cpu', 'cuda']:
+            raise ValueError(f"Unsupported device: {device}. Supported devices are 'cpu' and 'cuda'.")
         self.device = device
         self.xp = get_xp(device) # get the appropriate array library
         if isinstance(data, tensor):
@@ -79,6 +81,12 @@ class tensor:
 
     def __repr__(self):
         return self.data.__repr__().replace('array', 'tensor')
+    
+    def to_numpy(self):
+        if self.device == 'cpu':
+            return self.data
+        else:
+            return self.xp.asnumpy(self.data)
 
     @property
     def shape(self):
