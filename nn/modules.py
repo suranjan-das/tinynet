@@ -47,7 +47,7 @@ class Module:
 
     def to(self, device):
         for param in self.parameters():
-            param.to(device)
+            param = param.to(device)
         for module in self._modules.values():
             module.to(device)
 
