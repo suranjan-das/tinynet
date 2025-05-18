@@ -1,6 +1,7 @@
 from ..tensor import tensor
 from ..backend import get_xp
 from ..tensor_init import *
+from ..functional import *
 
 class Module:
     def __init__(self):
@@ -44,6 +45,12 @@ class Module:
         for module in self._modules.values():
             module.eval()
 
+    def to(self, device):
+        for param in self.parameters():
+            param.to(device)
+        for module in self._modules.values():
+            module.to(device)
+
     def __setattr__(self, name, value):
         if isinstance(value, tensor):
             self.register_parameter(name, value)
@@ -66,4 +73,18 @@ class Linear(Module):
 
     def forward(self, x):
         return x @ self.weight + self.bias
+    
+class ReLU(Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return relu(x)
+    
+class Sigmoid(Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return sigmoid(x)
 

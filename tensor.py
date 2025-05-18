@@ -16,13 +16,15 @@ class tensor:
         self.grad = None
         self.parents = parents or []
         self.op = op
-        self.is_leaf = (not self.parents and self.op is None)
+        self.is_leaf = self.requires_grad and op is None
+
 
     def to(self, device):
         if self.device == device:
             return self
+        data = self.xp.array(self.data) if device == 'cuda' else self.xp.asnumpy(self.data)
         new_tensor = tensor(
-            self.xp.array(self.data, dtype=self.dtype),
+            data,
             requires_grad=self.requires_grad,
             device=device,
             dtype=self.dtype
