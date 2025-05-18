@@ -5,7 +5,7 @@ from ..backend import get_xp
 # Sigmoid operation
 class Sigmoid(Operation):
     def forward(self, x):
-        xp = get_xp()
+        xp = get_xp(x.device)
         self.s = 1 / (1 + xp.exp(-x.data))
         return self.s
 

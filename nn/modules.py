@@ -48,8 +48,6 @@ class Module:
     def to(self, device):
         for param in self.parameters():
             param = param.to(device)
-        for module in self._modules.values():
-            module.to(device)
 
     def __setattr__(self, name, value):
         if isinstance(value, tensor):

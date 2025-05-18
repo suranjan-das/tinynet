@@ -15,7 +15,7 @@ except (ImportError, RuntimeError):
     _CUPY_AVAILABLE = False
 
 
-def get_xp(device="cpu"):
+def get_xp(device):
     if device.startswith("cuda") :
         if not _CUPY_AVAILABLE:
             raise RuntimeError("CuPy not available or no CUDA device found.")
