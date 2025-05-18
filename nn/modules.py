@@ -46,10 +46,14 @@ class Module:
             module.eval()
 
     def to(self, device):
+        # Update self's parameters
         for name, param in self._parameters.items():
-            self._parameters[name] = param.to(device)
-        for module in self._modules.values():
+            setattr(self, name, param.to(device))  # Update the attribute and internal dict
+
+        # Recursively update submodules
+        for name, module in self._modules.items():
             module.to(device)
+
 
     def __setattr__(self, name, value):
         if isinstance(value, tensor):
